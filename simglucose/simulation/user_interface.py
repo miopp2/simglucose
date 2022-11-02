@@ -7,6 +7,7 @@ from simglucose.patient.t1dpatient import T1DPatient
 from simglucose.simulation.scenario_gen import RandomScenario
 from simglucose.simulation.scenario import CustomScenario
 from simglucose.analysis.report import report
+from simglucose.controller.pid_ctrller import PIDController
 import pandas as pd
 import copy
 import pkg_resources
@@ -247,18 +248,21 @@ def pick_controller():
     while True:
         print('Select controller:')
         print('[1] Basal-Bolus Controller')
+        print('[2] PID Controller')
         input_value = input('>>>')
         try:
             selection = int(input_value)
         except ValueError:
             print('Please input an integer!')
             continue
-        if selection < 1 or selection > 1:
+        if selection < 1 or selection > 2:
             print('Please input a number from the list!')
         else:
             break
     if selection == 1:
         controller = BBController()
+    if selection == 2:
+        controller = PIDController()
     return controller
 
 
