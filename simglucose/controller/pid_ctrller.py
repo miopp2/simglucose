@@ -32,7 +32,7 @@ class PIDController(Controller):
         logger.info('integrated state: {}'.format(self.integrated_state))
 
         # return the action
-        action = Action(basal=control_input, bolus=0)
+        action = Action(basal=control_input, bolus=0, total=0)
         return action
 
     def reset(self):
