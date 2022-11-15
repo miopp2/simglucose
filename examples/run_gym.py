@@ -1,10 +1,10 @@
 import gym
+from gym.envs.registration import register
 
 # Register gym environment. By specifying kwargs,
 # you are able to choose which patient to simulate.
 # patient_name must be 'adolescent#001' to 'adolescent#010',
 # or 'adult#001' to 'adult#010', or 'child#001' to 'child#010'
-from gym.envs.registration import register
 register(
     id='simglucose-adolescent2-v0',
     entry_point='simglucose.envs:T1DSimEnv',
@@ -24,6 +24,8 @@ for t in range(100):
     # In the perfect situation, the agent should be able
     # to control the glucose only through basal instead
     # of asking patient to take bolus
+
+
     action = env.action_space.sample()
     observation, reward, done, info = env.step(action)
     if done:

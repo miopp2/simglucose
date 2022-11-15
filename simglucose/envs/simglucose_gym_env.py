@@ -3,6 +3,7 @@ from simglucose.patient.t1dpatient import T1DPatient
 from simglucose.sensor.cgm import CGMSensor
 from simglucose.actuator.pump import InsulinPump
 from simglucose.simulation.scenario_gen import RandomScenario
+from simglucose.simulation.scenario import CustomScenario
 from simglucose.controller.base import Action
 import numpy as np
 import pkg_resources
