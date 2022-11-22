@@ -2,7 +2,8 @@
 *.pyc
 
 # results foler
-/results/
+simulation/results/
+/examples/results
 
 # Setuptools distribution folder.
 /dist/
