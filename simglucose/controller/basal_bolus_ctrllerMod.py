@@ -22,6 +22,7 @@ class BBController(Controller):
         self.quest = pd.read_csv(CONTROL_QUEST)
         self.patient_params = pd.read_csv(PATIENT_PARA_FILE)
         self.target = target
+        self.currentInsulin
 
     def policy(self, observation, reward, done, **kwargs):
         sample_time = kwargs.get('sample_time', 1)
@@ -62,14 +63,24 @@ class BBController(Controller):
             BW = 57.0  # unit: kg
 
         basal = u2ss * BW / 6000  # unit: U/min
+
+        # linear decrease of basal when glycemia below 85 but above 70
+        if glucose <85 and glucose > 70:
+            basal = basal * glucose/(85+70)
+
+        # linear increase of basal when glycemia above 160 but below 220
+        elif glucose > 160 and glucose < 220:
+            basal = basal + glucose/(160+220)
+
         if meal > 0:
             logger.info('Calculating bolus ...')
             logger.info(f'Meal = {meal} g/min')
             logger.info(f'glucose = {glucose}')
             bolus = (
-                (meal * env_sample_time) / quest.CR.values + (glucose > 150) *
-                (glucose - self.target) / quest.CF.values).item()  # unit: U
+                    (meal * env_sample_time) / quest.CR.values + (glucose > 150) *
+                    (glucose - self.target) / quest.CF.values).item()  # unit: U
         else:
+            # todo: implement correction
             bolus = 0  # unit: U
 
         # This is to convert bolus in total amount (U) to insulin rate (U/min).
@@ -77,7 +88,7 @@ class BBController(Controller):
         # differently. The unit of Action.basal and Action.bolus are the same
         # (U/min).
         bolus = bolus / env_sample_time  # unit: U/min
-        return Action(basal=basal, bolus=bolus, total=0)
+        return Action(basal=basal, bolus=bolus)
 
     def reset(self):
         pass
