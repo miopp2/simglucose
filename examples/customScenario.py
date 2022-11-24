@@ -41,6 +41,7 @@ for meal, vals in enumerate(base_scen):
 #            interpreted as the time of start_time + time. Time in double
 #            type is interpreted as time in timedelta with unit of hours
 
+
 # manual multiday scene
 # scen_timedelta = [(7, 45), (12, 70), (16, 15), (18, 80), (23, 10),(24+7, 45), (24+12, 70), (24+16, 15), (24+18, 80), (24+23, 10)]
 
