@@ -50,8 +50,8 @@ repeatScen = base_scen
 scenTimedelta = []
 
 for simDay in range(simDays):
-    for timeMealsize in repeatScen:
-        scenTimedelta.append((24*simDay+timeMealsize[0], timeMealsize[1]))
+    for time, mealsize in repeatScen:
+        scenTimedelta.append((24*simDay+time, mealsize))
 
 
 # scenario = CustomScenario(start_time=start_time, scenario=scen)
