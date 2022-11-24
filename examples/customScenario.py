@@ -47,15 +47,15 @@ def create_scenario(base_scen, sim_days):
     for simDay in range(sim_days):
         for time, mealsize in base_scen:
             repeat_scen.append((24*simDay+time, mealsize))
-        for meal, vals in enumerate(repeat_scen):
-            time, CHO = vals
-            time += np.random.normal(0.0, 0.25)
-            if not meal == 3:
-                CHO += np.random.normal(0.0, 10)
-            else:
-                CHO += np.random.normal(0.0, 5)
-            vary_scen.append((float(f'{time:.2f}'),float(f'{CHO:.2f}')))
-            print(vary_scen)
+
+    for meal, vals in enumerate(repeat_scen):
+        time, CHO = vals
+        time += np.random.normal(0.0, 0.25)
+        if not meal == 3:
+            CHO += np.random.normal(0.0, 10)
+        else:
+            CHO += np.random.normal(0.0, 5)
+        vary_scen.append((float(f'{time:.2f}'),float(f'{CHO:.2f}')))
     return CustomScenario(start_time=start_time, scenario=vary_scen), vary_scen
 
 def write_log(envs):
