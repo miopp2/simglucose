@@ -23,12 +23,17 @@ PATIENT_PARA_FILE = pkg_resources.resource_filename(
 now = datetime.now()
 start_time = datetime.combine(now.date(), datetime.min.time())
 
-# create results folder
-folder_name = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-path = os.path.join(os.path.abspath('./results/'), folder_name)
-os.makedirs(path, exist_ok=True)
+def create_result_folder():
+    """create results folder"""
+    folder_name = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    path = os.path.join(os.path.abspath('./results/'), folder_name)
+    os.makedirs(path, exist_ok=True)
+    return path
 
 def build_envs(name, scenario):
+    """create environments for simulation
+    name: patient name, e.g. 'adolescent#001
+    scenario: simglucose.simulation.scenario.CustomScenario"""
     patient = T1DPatient.withName(name)
     sensor = CGMSensor.withName('Dexcom', seed=1)
     pump = InsulinPump.withName('Insulet')
@@ -49,11 +54,13 @@ def create_scenario(base_scen, sim_days):
                 CHO += np.random.normal(0.0, 10)
             else:
                 CHO += np.random.normal(0.0, 5)
-            vary_scen.append((time, CHO))
-            # todo: limit digits to 4
+            vary_scen.append((float(f'{time:.2f}'),float(f'{CHO:.2f}')))
+            print(vary_scen)
     return CustomScenario(start_time=start_time, scenario=vary_scen), vary_scen
 
 def write_log(envs):
+    """Generate log file containing infos to simulation. Contains patient names, sensor type, pump type, base scenario
+    modified scenario, and controllers"""
     log = ['patient name: ', str(patient_names),
            'sensor: ', envs[0].sensor.name,
            'pump: ', envs[0].pump._params[0],
@@ -66,7 +73,7 @@ def write_log(envs):
 
 
 def select_patients(ctrllers, patient_group='All' ):
-    """Select patients to run simulation for.
+    """Select patients to run simulation for. Repeat sequence for as many times as there are controllers
     Valid choices: 'All' (default), 'Adolescents', 'Adults', 'Children'"""
     patient_params = pd.read_csv(PATIENT_PARA_FILE)
     all_patients = list(patient_params['Name'].values)
@@ -83,6 +90,7 @@ def select_patients(ctrllers, patient_group='All' ):
 
 
 def create_ctrllers(ctrllers):
+    """Enable to run same scenario with multiple controllers"""
     controllers = []
     for controller in ctrllers:
         list = [copy.deepcopy(controller) for _ in range(len(envs))]
@@ -91,6 +99,7 @@ def create_ctrllers(ctrllers):
 
 
 if __name__ == '__main__':
+    path = create_result_folder()
 
     # select controller to run simulation with
     controller_names = ['BBController', 'PIDCtrller_0.0001_0.00000275_0.1']
