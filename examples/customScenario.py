@@ -35,9 +35,27 @@ for meal, vals in enumerate(base_scen):
         CHO += np.random.normal(0.0, 5)
     scen.append((time, CHO))
 
+# scenario - a list of tuples (time, action), where time is a datetime or
+#            timedelta or double, action is a namedtuple defined by
+#            scenario.Action. When time is a timedelta, it is
+#            interpreted as the time of start_time + time. Time in double
+#            type is interpreted as time in timedelta with unit of hours
 
-scenario = CustomScenario(start_time=start_time, scenario=scen)
-# scenario = CustomScenario(start_time=datetime.combine(datetime.now().date(), datetime.min.time()), scenario=[(7, 45), (12, 70), (16, 15), (18, 80), (23, 10)])
+# manual multiday scene
+# scen_timedelta = [(7, 45), (12, 70), (16, 15), (18, 80), (23, 10),(24+7, 45), (24+12, 70), (24+16, 15), (24+18, 80), (24+23, 10)]
+
+# repeated multiday scene (daily repetition of input scene)
+simDays = 2
+repeatScen = base_scen
+scenTimedelta = []
+
+for simDay in range(simDays):
+    for timeMealsize in repeatScen:
+        scenTimedelta.append((24*simDay+timeMealsize[0], timeMealsize[1]))
+
+
+# scenario = CustomScenario(start_time=start_time, scenario=scen)
+scenario = CustomScenario(start_time=datetime.combine(datetime.now().date(), datetime.min.time()), scenario=scenTimedelta)
 env = T1DSimEnv(patient, sensor, pump, scenario)
 
 # Create a controller
@@ -55,7 +73,7 @@ with open(os.path.join(path, 'scen.txt'), 'w') as f:
     f.write('\n'.join(log))
 
 # Put them together to create a simulation object
-s = SimObj(env, controller, timedelta(days=2), animate=False, path=path)
+s = SimObj(env, controller, timedelta(days=simDays), animate=True, path=path)
 
 results = sim(s)
 df = pd.concat([results], keys=[s.env.patient.name])
