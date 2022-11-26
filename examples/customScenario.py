@@ -5,7 +5,7 @@ from simglucose.sensor.cgm import CGMSensor
 from simglucose.actuator.pump import InsulinPump
 from simglucose.patient.t1dpatient import T1DPatient
 from simglucose.simulation.scenario import CustomScenario
-from simglucose.simulation.sim_engine import SimObj, sim, batch_sim
+from simglucose.simulation.sim_engine import SimObj, batch_sim
 from datetime import timedelta
 from simglucose.analysis.report import report
 from datetime import datetime
@@ -23,30 +23,33 @@ PATIENT_PARA_FILE = pkg_resources.resource_filename(
 now = datetime.now()
 start_time = datetime.combine(now.date(), datetime.min.time())
 
+
 def create_result_folder():
     """create results folder"""
-    folder_name = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-    path = os.path.join(os.path.abspath('./results/'), folder_name)
-    os.makedirs(path, exist_ok=True)
-    return path
+    _folder_name = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    _path = os.path.join(os.path.abspath('./results/'), _folder_name)
+    os.makedirs(_path, exist_ok=True)
+    return _path
 
-def build_envs(name, scenario):
+
+def build_envs(name, _scenario):
     """create environments for simulation
     name: patient name, e.g. 'adolescent#001
     scenario: simglucose.simulation.scenario.CustomScenario"""
     patient = T1DPatient.withName(name)
     sensor = CGMSensor.withName('Dexcom', seed=1)
     pump = InsulinPump.withName('Insulet')
-    scen = copy.deepcopy(scenario)
+    scen = copy.deepcopy(_scenario)
     env = T1DSimEnv(patient, sensor, pump, scen)
     return env
 
-def create_scenario(base_scen, sim_days):
+
+def create_scenario(_base_scen, _sim_days):
     repeat_scen = []
     vary_scen = []
-    for simDay in range(sim_days):
-        for time, mealsize in base_scen:
-            repeat_scen.append((24*simDay+time, mealsize))
+    for simDay in range(_sim_days):
+        for time, mealsize in _base_scen:
+            repeat_scen.append((24 * simDay + time, mealsize))
 
     for meal, vals in enumerate(repeat_scen):
         time, CHO = vals
@@ -55,15 +58,16 @@ def create_scenario(base_scen, sim_days):
             CHO += np.random.normal(0.0, 10)
         else:
             CHO += np.random.normal(0.0, 5)
-        vary_scen.append((float(f'{time:.2f}'),float(f'{CHO:.2f}')))
+        vary_scen.append((float(f'{time:.2f}'), float(f'{CHO:.2f}')))
     return CustomScenario(start_time=start_time, scenario=vary_scen), vary_scen
 
-def write_log(envs):
+
+def write_log(_envs):
     """Generate log file containing infos to simulation. Contains patient names, sensor type, pump type, base scenario
     modified scenario, and controllers"""
     log = ['patient name: ', str(patient_names),
-           'sensor: ', envs[0].sensor.name,
-           'pump: ', envs[0].pump._params[0],
+           'sensor: ', _envs[0].sensor.name,
+           'pump: ', _envs[0].pump._params[0],
            'base scen: ', str(base_scen),
            'scen: ', str(scen_list),
            'controllers: ', str(controllers)]
@@ -72,30 +76,29 @@ def write_log(envs):
         f.write('\n'.join(log))
 
 
-def select_patients(ctrllers, patient_group='All' ):
+def select_patients(_ctrllers, _patient_group='All'):
     """Select patients to run simulation for. Repeat sequence for as many times as there are controllers
     Valid choices: 'All' (default), 'Adolescents', 'Adults', 'Children'"""
     patient_params = pd.read_csv(PATIENT_PARA_FILE)
     all_patients = list(patient_params['Name'].values)
-    n_ctrllers = len(ctrllers)
-    if patient_group == 'All':
+    n_ctrllers = len(_ctrllers)
+    if _patient_group == 'All':
         return n_ctrllers * all_patients
-    elif patient_group == 'Adolescents':
+    elif _patient_group == 'Adolescents':
         return n_ctrllers * all_patients[:10]
-    elif patient_group == 'Adults':
+    elif _patient_group == 'Adults':
         return n_ctrllers * all_patients[10:20]
-    elif patient_group == 'Children':
+    elif _patient_group == 'Children':
         return n_ctrllers * all_patients[20:30]
 
 
-
-def create_ctrllers(ctrllers):
+def create_ctrllers(_ctrllers):
     """Enable to run same scenario with multiple controllers"""
-    controllers = []
-    for controller in ctrllers:
-        list = [copy.deepcopy(controller) for _ in range(len(envs))]
-        controllers.extend(list)
-    return controllers
+    _controllers = []
+    for _controller in _ctrllers:
+        as_list = [copy.deepcopy(_controller) for _ in range(len(envs))]
+        _controllers.extend(as_list)
+    return _controllers
 
 
 if __name__ == '__main__':
@@ -110,7 +113,6 @@ if __name__ == '__main__':
     sim_days = 3
     # patient_names = select_patients(controllers, patient_group)
     patient_names = ['adolescent#001', 'adolescent#002']
-
 
     # set base scenario and add variability
     base_scen = [(7, 50), (12, 60), (18.5, 80), (23, 15)]
@@ -137,4 +139,3 @@ if __name__ == '__main__':
         results = batch_sim(sim_instances, parallel=True)
         df = pd.concat(results, keys=[s.env.patient.name for s in sim_instances])
         results, ri_per_hour, zone_stats, figs, axes = report(df, path_ctrl)
-
