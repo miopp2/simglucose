@@ -28,7 +28,7 @@ def ensemble_BG(BG, ax=None, plot_var=False, nstd=3):
         ax.plot_date(
             t, BG[p], '-', color='grey', alpha=0.5, lw=0.5, label='_nolegend_')
     ax.plot(t, mean_curve, lw=2, label='Mean Curve')
-    ax.xaxis.set_minor_locator(mdates.HourLocator(interval=3))
+    ax.xaxis.set_minor_locator(mdates.HourLocator(interval=3))      # x-label hour tics
     ax.xaxis.set_minor_formatter(mdates.DateFormatter('%H:%M\n'))
     ax.xaxis.set_major_locator(mdates.DayLocator())
     ax.xaxis.set_major_formatter(mdates.DateFormatter('\n%b %d'))
@@ -48,7 +48,8 @@ def ensemblePlot(df):
     df_BG = df.unstack(level=0).BG
     df_CGM = df.unstack(level=0).CGM
     df_CHO = df.unstack(level=0).CHO
-    fig = plt.figure()
+    fig = plt.figure(figsize=(32, 18), dpi=160,) # figure size and image quality
+    #fig.set_size_inches(10,10)
     ax1 = fig.add_subplot(311)
     ax2 = fig.add_subplot(312)
     ax3 = fig.add_subplot(313)
@@ -58,8 +59,8 @@ def ensemblePlot(df):
     t = pd.to_datetime(df_CHO.index)
     ax3.plot(t, df_CHO)
 
-    ax1.tick_params(labelbottom=False)
-    ax2.tick_params(labelbottom=False)
+    ax1.tick_params(labelbottom=True)   # add/remove current day as tic
+    ax2.tick_params(labelbottom=True)   # add/remove current day as tic
     ax3.xaxis.set_minor_locator(mdates.AutoDateLocator())
     ax3.xaxis.set_minor_formatter(mdates.DateFormatter('%H:%M\n'))
     ax3.xaxis.set_major_locator(mdates.DayLocator())
