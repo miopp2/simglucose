@@ -20,14 +20,17 @@ def ensemble_BG(BG, ax=None, plot_var=False, nstd=3):
 
     # t = BG.index.to_pydatetime()
     t = pd.to_datetime(BG.index)
+
+    # calculation of simulation days
+    td = t[-1]-t[0]
+    sim_days = td.days
+
     if ax is None:
         fig, ax = plt.subplots(1)
     if plot_var and not std_curve.isnull().all():
-        ax.fill_between(
-            t, up_env, down_env, alpha=0.5, label='+/- {0}*std'.format(nstd))
+        ax.fill_between(t, up_env, down_env, alpha=0.5, label='+/- {0}*std'.format(nstd))
     for p in BG:
-        ax.plot_date(
-            t, BG[p], '-', color='grey', alpha=0.5, lw=0.5, label='_nolegend_')
+        ax.plot_date(t, BG[p], '-', color='grey', alpha=0.5, lw=0.5, label='_nolegend_')
     ax.plot(t, mean_curve, lw=2, label='Mean Curve')
     #ax.xaxis.set_minor_locator(mdates.HourLocator(interval=8))      # x-label hour tics
     ax.xaxis.set_minor_formatter(mdates.DateFormatter('%H:%M\n'))
@@ -36,12 +39,15 @@ def ensemble_BG(BG, ax=None, plot_var=False, nstd=3):
 
     ax.axhline(70, c='green', linestyle='--', label='Hypoglycemia', lw=1)
     ax.axhline(180, c='red', linestyle='--', label='Hyperglycemia', lw=1)
-    # TODO: automatic number of vlines dependent on simulation days
+
+
     now = datetime.now()
     start_time = datetime.combine(now.date(), datetime.min.time())
-    ax.axvline([start_time + timedelta(hours=0*24+12)], c='grey', linestyle='--', lw=1)
-    ax.axvline([start_time + timedelta(hours=1*24+12)], c='grey', linestyle='--', lw=1)
-    ax.axvline([start_time + timedelta(hours=2*24+12)], c='grey', linestyle='--', lw=1)
+
+    start_time = t[0]
+    hours_day = 24
+    for day in range(sim_days):
+        ax.axvline([start_time + timedelta(hours=day*hours_day+hours_day/2)], c='grey', linestyle='--', lw=1)
 
     ax.set_xlim([t[0], t[-1]])
     ax.set_ylim([BG.min().min() - 10, BG.max().max() + 10])
