@@ -76,20 +76,19 @@ def write_log(_envs):
         f.write('\n'.join(log))
 
 
-def select_patients(_ctrllers, _patient_group='All'):
-    """Select patients to run simulation for. Repeat sequence for as many times as there are controllers
+def select_patients(_patient_group='All'):
+    """Select patients to run simulation for.
     Valid choices: 'All' (default), 'Adolescents', 'Adults', 'Children'"""
     patient_params = pd.read_csv(PATIENT_PARA_FILE)
     all_patients = list(patient_params['Name'].values)
-    n_ctrllers = len(_ctrllers)
     if _patient_group == 'All':
-        return n_ctrllers * all_patients
+        return all_patients
     elif _patient_group == 'Adolescents':
-        return n_ctrllers * all_patients[:10]
+        return all_patients[:10]
     elif _patient_group == 'Adults':
-        return n_ctrllers * all_patients[10:20]
+        return all_patients[10:20]
     elif _patient_group == 'Children':
-        return n_ctrllers * all_patients[20:30]
+        return all_patients[20:30]
 
 
 def create_ctrllers(_ctrllers):
@@ -111,8 +110,8 @@ if __name__ == '__main__':
     # Select parameters to run simulation for
     patient_group = 'Adolescents'
     sim_days = 3
-    # patient_names = select_patients(controllers, patient_group)
-    patient_names = ['adolescent#001', 'adolescent#002']
+    patient_names = select_patients(patient_group)
+    # patient_names = ['adolescent#001', 'adolescent#002']
 
     # set base scenario and add variability
     base_scen = [(7, 50), (12, 60), (18.5, 80), (23, 15)]
