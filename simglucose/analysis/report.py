@@ -4,6 +4,7 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+from datetime import datetime, timedelta
 from matplotlib.collections import PatchCollection
 # from pandas.plotting import lag_plot
 import logging
@@ -28,13 +29,19 @@ def ensemble_BG(BG, ax=None, plot_var=False, nstd=3):
         ax.plot_date(
             t, BG[p], '-', color='grey', alpha=0.5, lw=0.5, label='_nolegend_')
     ax.plot(t, mean_curve, lw=2, label='Mean Curve')
-    ax.xaxis.set_minor_locator(mdates.HourLocator(interval=3))      # x-label hour tics
+    #ax.xaxis.set_minor_locator(mdates.HourLocator(interval=8))      # x-label hour tics
     ax.xaxis.set_minor_formatter(mdates.DateFormatter('%H:%M\n'))
     ax.xaxis.set_major_locator(mdates.DayLocator())
     ax.xaxis.set_major_formatter(mdates.DateFormatter('\n%b %d'))
 
     ax.axhline(70, c='green', linestyle='--', label='Hypoglycemia', lw=1)
     ax.axhline(180, c='red', linestyle='--', label='Hyperglycemia', lw=1)
+    # TODO: automatic number of vlines dependent on simulation days
+    now = datetime.now()
+    start_time = datetime.combine(now.date(), datetime.min.time())
+    ax.axvline([start_time + timedelta(hours=0*24+12)], c='grey', linestyle='--', lw=1)
+    ax.axvline([start_time + timedelta(hours=1*24+12)], c='grey', linestyle='--', lw=1)
+    ax.axvline([start_time + timedelta(hours=2*24+12)], c='grey', linestyle='--', lw=1)
 
     ax.set_xlim([t[0], t[-1]])
     ax.set_ylim([BG.min().min() - 10, BG.max().max() + 10])
@@ -48,7 +55,7 @@ def ensemblePlot(df):
     df_BG = df.unstack(level=0).BG
     df_CGM = df.unstack(level=0).CGM
     df_CHO = df.unstack(level=0).CHO
-    fig = plt.figure(figsize=(32, 18), dpi=160,) # figure size and image quality
+    fig = plt.figure(figsize=(32, 18), dpi=160) # figure size and image quality
     #fig.set_size_inches(10,10)
     ax1 = fig.add_subplot(311)
     ax2 = fig.add_subplot(312)
