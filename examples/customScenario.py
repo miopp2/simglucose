@@ -130,7 +130,7 @@ if __name__ == '__main__':
 
         # create simulation objects
         sim_instances = [
-            SimObj(env, ctrl, timedelta(days=sim_days), animate=False, path=path)
+            SimObj(env, ctrl, timedelta(days=sim_days), animate=False, path=path_ctrl)
             for (env, ctrl) in zip(envs, ctrllers)
         ]
 
